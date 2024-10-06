@@ -838,6 +838,7 @@ require('lazy').setup({
         'hadolint',
         'checkmake',
         'sqlfluff',
+        'ast-grep',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -871,12 +872,12 @@ require('lazy').setup({
       },
     },
     opts = {
-      notify_on_error = false,
+      notify_on_error = true,
       format_on_save = function(bufnr)
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = { c = true, cpp = true, gohtmltmpl = true }
         local lsp_format_opt
         if disable_filetypes[vim.bo[bufnr].filetype] then
           lsp_format_opt = 'never'
@@ -897,6 +898,7 @@ require('lazy').setup({
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
         javascript = { 'prettier' },
         html = { 'prettier' },
+        gohtmltmpl = { 'prettier' },
         python = { 'isort', 'black' },
         latex = { 'latexindent' },
         sh = { 'shfmt' },
@@ -929,13 +931,14 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
+        config = function() end,
       },
       'saadparwaiz1/cmp_luasnip',
 
@@ -949,7 +952,16 @@ require('lazy').setup({
       -- See `:help cmp`
       local cmp = require 'cmp'
       local luasnip = require 'luasnip'
+      luasnip.setup {
+        load_ft_func = require('luasnip.extras.filetype_functions').extend_load_ft {
+          gohtmltmpl = { 'html' },
+        },
+      }
+
       luasnip.config.setup {}
+
+      luasnip.filetype_set('gohtmltmpl', { 'html' })
+      luasnip.filetype_extend('gohtmltmpl', { 'html' })
 
       cmp.setup {
         snippet = {
