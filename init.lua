@@ -801,7 +801,9 @@ require('lazy').setup({
 
         typst_lsp = {},
         marksman = {},
-        html = {},
+        html = {
+          filetypes = { 'html', 'templ', 'gohtmltmpl' },
+        },
         -- sqls = {
         --   cmd = { 'sqls', '-config', '.sqls.yml' },
         --   root_dir = require('lspconfig/util').root_pattern '.sqls.yml',
@@ -1099,7 +1101,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'gotmpl', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
