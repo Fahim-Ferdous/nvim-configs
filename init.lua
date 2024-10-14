@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -700,6 +700,7 @@ require('lazy').setup({
         htmx = {},
         -- rubocop = {},
         golangci_lint_ls = {},
+        arduino_language_server = {},
         gopls = {
           filetypes = { 'go', 'gomod', 'gowork', 'gohtml', 'gohtmltmpl' },
           root_dir = require('lspconfig/util').root_pattern('go.work', 'go.mod', '.git'),
@@ -801,7 +802,9 @@ require('lazy').setup({
 
         typst_lsp = {},
         marksman = {},
-        html = {},
+        html = {
+          filetypes = { 'html', 'templ', 'gohtmltmpl' },
+        },
         -- sqls = {
         --   cmd = { 'sqls', '-config', '.sqls.yml' },
         --   root_dir = require('lspconfig/util').root_pattern '.sqls.yml',
@@ -870,12 +873,12 @@ require('lazy').setup({
       },
     },
     opts = {
-      notify_on_error = false,
+      notify_on_error = true,
       format_on_save = function(bufnr)
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = { c = true, cpp = true, gohtmltmpl = true }
         local lsp_format_opt
         if disable_filetypes[vim.bo[bufnr].filetype] then
           lsp_format_opt = 'never'
@@ -896,6 +899,7 @@ require('lazy').setup({
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
         javascript = { 'prettier' },
         html = { 'prettier' },
+        gohtmltmpl = { 'prettier' },
         python = { 'isort', 'black' },
         latex = { 'latexindent' },
         sh = { 'shfmt' },
@@ -928,13 +932,14 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
+        config = function() end,
       },
       'saadparwaiz1/cmp_luasnip',
 
@@ -948,7 +953,16 @@ require('lazy').setup({
       -- See `:help cmp`
       local cmp = require 'cmp'
       local luasnip = require 'luasnip'
+      luasnip.setup {
+        load_ft_func = require('luasnip.extras.filetype_functions').extend_load_ft {
+          gohtmltmpl = { 'html' },
+        },
+      }
+
       luasnip.config.setup {}
+
+      luasnip.filetype_set('gohtmltmpl', { 'html' })
+      luasnip.filetype_extend('gohtmltmpl', { 'html' })
 
       cmp.setup {
         snippet = {
@@ -1100,7 +1114,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'gotmpl', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
