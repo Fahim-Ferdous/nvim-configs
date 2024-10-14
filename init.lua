@@ -700,6 +700,7 @@ require('lazy').setup({
         htmx = {},
         rubocop = {},
         golangci_lint_ls = {},
+        arduino_language_server = {},
         gopls = {
           filetypes = { 'go', 'gomod', 'gowork', 'gohtml', 'gohtmltmpl' },
           root_dir = require('lspconfig/util').root_pattern('go.work', 'go.mod', '.git'),
@@ -1009,12 +1010,12 @@ require('lazy').setup({
           --
           -- <c-l> will move you to the right of each of the expansion locations.
           -- <c-h> is similar, except moving you backwards.
-          ['<TAB>'] = cmp.mapping(function()
+          ['<C-l>'] = cmp.mapping(function()
             if luasnip.expand_or_locally_jumpable() then
               luasnip.expand_or_jump()
             end
           end, { 'i', 's' }),
-          ['<S-TAB>'] = cmp.mapping(function()
+          ['<C-h>'] = cmp.mapping(function()
             if luasnip.locally_jumpable(-1) then
               luasnip.jump(-1)
             end
