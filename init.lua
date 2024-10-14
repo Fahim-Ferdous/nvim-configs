@@ -698,7 +698,7 @@ require('lazy').setup({
         pylsp = {},
         elmls = {},
         htmx = {},
-        rubocop = {},
+        -- rubocop = {},
         golangci_lint_ls = {},
         gopls = {
           filetypes = { 'go', 'gomod', 'gowork', 'gohtml', 'gohtmltmpl' },
@@ -836,6 +836,7 @@ require('lazy').setup({
         'hadolint',
         'checkmake',
         'sqlfluff',
+        'golangci-lint',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
