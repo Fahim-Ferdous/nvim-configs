@@ -301,7 +301,7 @@ require('lazy').setup({
   },
 
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
-  'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  -- 'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -691,11 +691,23 @@ require('lazy').setup({
           config = function()
             require('lspconfig').clangd.setup { init_options = { compilationDatabasePath = './build' } }
           end,
+          filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' }, -- exclude "proto".
         },
         -- gradle_ls = {},
         -- kotlin_language_server = {},
         -- pyright = {},
-        pylsp = {},
+        ols = {},
+        pylsp = {
+          settings = {
+            pylsp = {
+              plugins = {
+                pycodestyle = {
+                  maxLineLength = 120,
+                },
+              },
+            },
+          },
+        },
         elmls = {},
         htmx = {},
         -- rubocop = {},
@@ -837,8 +849,10 @@ require('lazy').setup({
         'isort',
         'mypy',
         'hadolint',
+        'buf',
         'checkmake',
         'sqlfluff',
+        'rust_analyzer',
         'golangci-lint',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
