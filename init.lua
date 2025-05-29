@@ -459,18 +459,19 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+        defaults = {
+          --   mappings = {
+          --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+          --   },
+          layout_strategy = 'vertical',
+        },
+        -- pickers = {}
+        -- extensions = {
+        --   ['ui-select'] = {
+        --     -- require('telescope.themes').get_dropdown(),
+        --     -- require('telescope.themes').get_ivy(),
         --   },
         -- },
-        -- pickers = {}
-        extensions = {
-          ['ui-select'] = {
-            require('telescope.themes').get_dropdown(),
-            require('telescope.themes').get_ivy(),
-          },
-        },
       }
 
       -- Enable Telescope extensions if they are installed
@@ -705,27 +706,30 @@ require('lazy').setup({
         },
         -- gradle_ls = {},
         -- kotlin_language_server = {},
-        -- pyright = {},
+        pyright = {},
         ols = {},
-        pylsp = {
-          settings = {
-            pylsp = {
-              plugins = {
-                pycodestyle = {
-                  maxLineLength = 120,
-                },
-              },
-            },
-          },
-        },
+        -- pylsp = {
+        --   settings = {
+        --     pylsp = {
+        --       plugins = {
+        --         pycodestyle = {
+        --           maxLineLength = 120,
+        --         },
+        --       },
+        --     },
+        --   },
+        -- },
+        ruff = {},
         elmls = {},
         htmx = {},
         -- rubocop = {},
-        golangci_lint_ls = {},
+        -- golangci_lint_ls = {},
         arduino_language_server = {},
+        ts_ls = {},
         gopls = {
           filetypes = { 'go', 'gomod', 'gowork', 'gohtml', 'gohtmltmpl' },
           root_dir = require('lspconfig/util').root_pattern('go.work', 'go.mod', '.git'),
+          cmd = { 'gopls', '-tags=unit,functional,integration' },
           settings = {
             gopls = {
               hints = {
@@ -749,7 +753,6 @@ require('lazy').setup({
                 unusedwrites = true,
                 unusedvariable = true,
                 useany = true,
-                fieldalignment = true,
                 nilness = true,
                 shadow = true,
               },
@@ -759,7 +762,7 @@ require('lazy').setup({
               --   gc_details = true,
               -- },
               staticcheck = true,
-              buildFlags = { '-tags=unit,functional' },
+              buildFlags = { '-tags=unit,functional,integration' },
             },
           },
           config = function()
@@ -789,40 +792,40 @@ require('lazy').setup({
         yamlls = {},
         jsonls = {},
 
-        texlab = {
-          settings = {
-            texlab = {
-              auxDirectory = '.',
-              bibtexFormatter = 'texlab',
-              build = {
-                args = { '-pdf', '-interaction=nonstopmode', '-synctex=1', '%f', '-pvc' },
-                executable = 'latexmk',
-                forwardSearchAfter = false,
-                onSave = false,
-              },
-              chktex = {
-                onEdit = true,
-                onOpenAndSave = true,
-              },
-              diagnosticsDelay = 300,
-              formatterLineLength = 80,
-              forwardSearch = {
-                executable = 'zathura',
-                args = { '--synctex-forward', '%l:1:%f', '%p' },
-              },
-              latexFormatter = 'latexindent',
-              latexindent = {
-                modifyLineBreaks = false,
-              },
-            },
-          },
-        },
+        -- texlab = {
+        --   settings = {
+        --     texlab = {
+        --       auxDirectory = '.',
+        --       bibtexFormatter = 'texlab',
+        --       build = {
+        --         args = { '-pdf', '-interaction=nonstopmode', '-synctex=1', '%f' },
+        --         executable = 'latexmk',
+        --         forwardSearchAfter = true,
+        --         onSave = true,
+        --       },
+        --       chktex = {
+        --         onEdit = true,
+        --         onOpenAndSave = true,
+        --       },
+        --       diagnosticsDelay = 300,
+        --       formatterLineLength = 80,
+        --       forwardSearch = {
+        --         executable = 'zathura',
+        --         args = { '--synctex-forward', '%l:1:%f', '%p' },
+        --       },
+        --       latexFormatter = 'latexindent',
+        --       latexindent = {
+        --         modifyLineBreaks = false,
+        --       },
+        --     },
+        --   },
+        -- },
 
         glsl_analyzer = {},
         dockerls = {},
-        cmake = {},
+        -- cmake = {},
 
-        typst_lsp = {},
+        -- typst = {},
         marksman = {},
         html = {
           filetypes = { 'html', 'templ', 'gohtmltmpl' },
@@ -857,13 +860,14 @@ require('lazy').setup({
         'ocamlformat',
         'black',
         'isort',
-        'mypy',
+        -- 'mypy',
         'hadolint',
         'buf',
         'checkmake',
-        'sqlfluff',
+        -- 'sqlfluff',
         'rust_analyzer',
-        'golangci-lint',
+        { 'golangci-lint', version = 'v1.64.8' },
+        'tree-sitter-cli',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -874,8 +878,10 @@ require('lazy').setup({
             -- This handles overriding only values explicitly passed
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
+            -- server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+            -- require('lspconfig')[server_name].setup(server)
+            require('lspconfig').enable(server_name)
+            require('lspconfig').config(server_name, server)
           end,
         },
       }
@@ -923,15 +929,18 @@ require('lazy').setup({
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
         javascript = { 'prettier' },
         html = { 'prettier' },
+        go = { 'goimports-reviser' },
         gohtmltmpl = { 'prettier' },
         python = { 'isort', 'black' },
-        latex = { 'latexindent' },
+        tex = { 'latexindent' },
         sh = { 'shfmt' },
         zsh = { 'shfmt' },
         ocaml = { 'ocamlformat' },
         markdown = { 'prettier' },
         -- yaml = { 'prettier' },
-        sql = { 'sqlfluff' },
+        -- sql = { 'sqlfluff' },
+        gdscript = { 'gdformat' },
+        reqo = { 'opa' },
       },
     },
   },
@@ -1146,6 +1155,7 @@ require('lazy').setup({
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { 'ruby' },
+        disable = { 'latex' },
       },
       indent = { enable = true, disable = { 'ruby' } },
     },
@@ -1230,7 +1240,7 @@ require('lazy').setup({
     },
     config = function()
       require('go').setup {
-        max_line_len = 80, -- max line length in golines format, Target maximum line length for golines
+        -- max_line_len = 80, -- max line length in golines format, Target maximum line length for golines
         tag_transform = true, -- can be transform option('snakecase', 'camelcase', etc) check gomodifytags for details and more options
         lsp_cfg = false, -- true: use non-default gopls setup specified in go/lsp.lua
         dap_debug_gui = {}, -- bool|table put your dap-ui setup here set to false to disable
@@ -1258,7 +1268,7 @@ require('lazy').setup({
         python = { 'mypy' },
         docker = { 'hadolint' },
         make = { 'checkmake' },
-        sql = { 'sqlfluff' },
+        -- sql = { 'sqlfluff' },
       }
 
       vim.api.nvim_create_autocmd({ 'BufWritePost' }, {
@@ -1305,6 +1315,15 @@ require('lazy').setup({
   --   end,
   --   ft = { 'tex', 'markdown' },
   -- },
+  {
+    'lervag/vimtex',
+    lazy = false, -- we don't want to lazy load VimTeX
+    -- tag = "v2.15", -- uncomment to pin to a specific release
+    init = function()
+      -- VimTeX configuration goes here, e.g.
+      vim.g.vimtex_view_method = 'zathura'
+    end,
+  },
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
@@ -1329,16 +1348,6 @@ require('lazy').setup({
 
 -- Autoformat
 local conform = require 'conform'
-conform.formatters.sqlfluff = {
-  inherit = false,
-  command = 'sqlfluff',
-  cwd = require('conform.util').root_file '.sqlfluff',
-  args = {
-    'fix',
-    '-',
-  },
-  require_cwd = true,
-}
 conform.formatters.shfmt = {
   prepend_args = {
     '-ci',
@@ -1355,7 +1364,7 @@ vim.api.nvim_create_autocmd('BufWritePre', {
   group = format_sync_grp,
 })
 
-require('lint').linters.sqlfluff.args = { 'lint', '--format=json' }
+-- require('lint').linters.sqlfluff.args = { 'lint', '--format=json' }
 
 vim.cmd 'autocmd FileType gleam lua require("lspconfig").gleam.setup({})'
 vim.cmd 'autocmd FileType gleam LspStart gleam'
