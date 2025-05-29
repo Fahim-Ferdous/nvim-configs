@@ -781,8 +781,6 @@ require('lazy').setup({
         ts_ls = {},
         gopls = {
           filetypes = { 'go', 'gomod', 'gowork', 'gohtml', 'gohtmltmpl' },
-          root_dir = require('lspconfig/util').root_pattern('go.work', 'go.mod', '.git'),
-          cmd = { 'gopls', '-tags=unit,functional,integration' },
           settings = {
             gopls = {
               hints = {
@@ -818,9 +816,9 @@ require('lazy').setup({
               buildFlags = { '-tags=unit,functional,integration' },
             },
           },
-          config = function()
-            vim.lsp.inlay_hint.enable(true)
-          end,
+          -- config = function()
+          --   vim.lsp.inlay_hint.enable(true)
+          -- end,
         },
         lua_ls = {
           -- cmd = { ... },
@@ -929,19 +927,19 @@ require('lazy').setup({
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
+        -- automatic_enable = {},
         ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
         automatic_installation = false,
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-            -- This handles overriding only values explicitly passed
-            -- by the server configuration above. Useful when disabling
-            -- certain features of an LSP (for example, turning off formatting for ts_ls)
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
-          end,
-        },
       }
+
+      for server_name, server in pairs(servers) do
+        -- This handles overriding only values explicitly passed
+        -- by the server configuration above. Useful when disabling
+        -- certain features of an LSP (for example, turning off formatting for ts_ls)
+        server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+        vim.lsp.enable(server_name)
+        vim.lsp.config(server_name, server)
+      end
     end,
   },
 
@@ -1267,36 +1265,36 @@ require('lazy').setup({
     end,
     dependencies = { 'nvim-tree/nvim-web-devicons' },
   },
-  {
-    'ray-x/go.nvim',
-    dependencies = { -- optional packages
-      'ray-x/guihua.lua',
-      'neovim/nvim-lspconfig',
-      'nvim-treesitter/nvim-treesitter',
-    },
-    config = function()
-      require('go').setup {
-        -- max_line_len = 80, -- max line length in golines format, Target maximum line length for golines
-        tag_transform = true, -- can be transform option('snakecase', 'camelcase', etc) check gomodifytags for details and more options
-        lsp_cfg = false, -- true: use non-default gopls setup specified in go/lsp.lua
-        dap_debug_gui = {}, -- bool|table put your dap-ui setup here set to false to disable
-        verbose_tests = true, -- set to add verbose flag to tests deprecated, see '-v' option
-
-        lsp_inlay_hints = {
-
-          -- following are used for neovim < 0.10 which does not implement inlay hints
-          -- hint style, set to 'eol' for end-of-line hints, 'inlay' for inline hints
-          style = 'eol',
-          enable = true, -- this might be only field apply to neovim > 0.10
-        },
-        floaterm = false,
-        luasnip = true, -- enable included luasnip snippets. you can also disable while add lua/snips folder to luasnip load
-      }
-    end,
-    event = { 'CmdlineEnter' },
-    ft = { 'go', 'gomod', 'gohtmltmpl', 'gotexttmpl' },
-    build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
-  },
+  -- {
+  --   'ray-x/go.nvim',
+  --   dependencies = { -- optional packages
+  --     'ray-x/guihua.lua',
+  --     'neovim/nvim-lspconfig',
+  --     'nvim-treesitter/nvim-treesitter',
+  --   },
+  --   config = function()
+  --     require('go').setup {
+  --       -- max_line_len = 80, -- max line length in golines format, Target maximum line length for golines
+  --       tag_transform = true, -- can be transform option('snakecase', 'camelcase', etc) check gomodifytags for details and more options
+  --       lsp_cfg = false, -- true: use non-default gopls setup specified in go/lsp.lua
+  --       dap_debug_gui = {}, -- bool|table put your dap-ui setup here set to false to disable
+  --       verbose_tests = true, -- set to add verbose flag to tests deprecated, see '-v' option
+  --
+  --       lsp_inlay_hints = {
+  --
+  --         -- following are used for neovim < 0.10 which does not implement inlay hints
+  --         -- hint style, set to 'eol' for end-of-line hints, 'inlay' for inline hints
+  --         style = 'eol',
+  --         enable = false, -- this might be only field apply to neovim > 0.10
+  --       },
+  --       floaterm = false,
+  --       luasnip = true, -- enable included luasnip snippets. you can also disable while add lua/snips folder to luasnip load
+  --     }
+  --   end,
+  --   event = { 'CmdlineEnter' },
+  --   ft = { 'go', 'gomod', 'gohtmltmpl', 'gotexttmpl' },
+  --   build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
+  -- },
   {
     'mfussenegger/nvim-lint',
     config = function()
@@ -1390,15 +1388,15 @@ conform.formatters.shfmt = {
   },
 }
 vim.cmd 'autocmd BufWritePre (InsertLeave?) <buffer> lua vim.lsp.buf.formatting_sync(nil,500)'
-local format_sync_grp = vim.api.nvim_create_augroup('GoFormat', {})
-vim.api.nvim_create_autocmd('BufWritePre', {
-  pattern = '*.go',
-  callback = function()
-    require('go.format').gofmt()
-    require('go.format').goimports()
-  end,
-  group = format_sync_grp,
-})
+-- local format_sync_grp = vim.api.nvim_create_augroup('GoFormat', {})
+-- vim.api.nvim_create_autocmd('BufWritePre', {
+--   pattern = '*.go',
+--   callback = function()
+-- require('go.format').gofmt()
+-- require('go.format').goimports()
+--   end,
+--   group = format_sync_grp,
+-- })
 
 -- require('lint').linters.sqlfluff.args = { 'lint', '--format=json' }
 
